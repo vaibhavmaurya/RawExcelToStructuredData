@@ -234,6 +234,8 @@ class CleanDFByConfig:
 
         return pd.DataFrame(final_data)
 
+    # TODO: Bring Empty column to the data based on the type
+
     def get_df(self, file_path, bytesIO=None, sheet_name=None, excel_table=False, extension=None):
         bd = BuildDataFrame(file_path, bytesIO)
         bd.set_sheet(pattern=[sheet_name])
@@ -248,17 +250,19 @@ class CleanDFByConfig:
                                         value_mappings=None, partial_match=True,
                                         excel_table=excel_table)
 
-            df = self.clean_df_field_type(df, bd.sheetname)
-            df = self.get_calculated_columns(df, bd.sheetname)
-            df = self.do_not_null(df, sheet_name)
-            df = df.assign(SheetName=[bd.sheetname] * df.shape[0])
-
             form_data = self._get_form_data(bd, sheet_name)
             if form_data is not None:
                 m = {}
                 for k, v in form_data.items():
                     m[k] = [v] * df.shape[0]
                 df = df.assign(**m)
+
+            # sheet_name is used for partial match
+            # bd.sheetname is actual sheet name
+            df = self.clean_df_field_type(df, sheet_name)
+            df = self.get_calculated_columns(df, sheet_name)
+            df = self.do_not_null(df, sheet_name)
+            df = df.assign(SheetName=[bd.sheetname] * df.shape[0])
 
             if callable(extension):
                 df_extended = extension(df)
