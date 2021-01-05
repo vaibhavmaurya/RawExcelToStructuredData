@@ -1,0 +1,7 @@
+Lib/
+Scripts/
+pyvenv.cfg
+share/
+.idea/
+.ipynb_checkpoints/
+*.xlsx
